@@ -6,20 +6,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
-
 public class GameJFrame extends JFrame implements KeyListener, ActionListener {
-    //主游戏界面继承于JFrame类表示界面
     int[][] array = new int[4][4];
-    int x0,y0;
-
-
-
-
     int step = 0;
-    String picture="girl";
+    String picture = "girl";
     int pictureIndex = getIndex();
-    ArrayList<String> pictureList = new ArrayList<>();
 
 
 
@@ -66,25 +57,36 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
 
     }
 
-    //    初始化数据
+    //    初始化数据 — 从终局出发随机移动，保证拼图一定可解
     private void initData() {
-        int[] arr = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                while(true){
-                    int index = (int)(Math.random()*16);
-                    if(index==0)
-                    {
-                        x0 = j;
-                        y0 = i;
-                    }
-                    if(arr[index] == 1){
-                        array[i][j] = index;
-                        arr[index] = 0;
-                        break;
-                    }
-                }
+        int[][] solved = {
+            {1, 2, 3, 4},
+            {5, 6, 7, 8},
+            {9, 10, 11, 12},
+            {13, 14, 15, 0}
+        };
+        for (int i = 0; i < 4; i++)
+            System.arraycopy(solved[i], 0, array[i], 0, 4);
 
+        int blankRow = 3, blankCol = 3;
+        int[] dr = {-1, 1, 0, 0};
+        int[] dc = {0, 0, -1, 1};
+        int lastDir = -1;
+
+        for (int i = 0; i < 200; i++) {
+            int dir;
+            do {
+                dir = (int) (Math.random() * 4);
+            } while (dir == lastDir); // 避免立刻撤销上一步
+
+            int nr = blankRow + dr[dir];
+            int nc = blankCol + dc[dir];
+            if (nr >= 0 && nr < 4 && nc >= 0 && nc < 4) {
+                array[blankRow][blankCol] = array[nr][nc];
+                array[nr][nc] = 0;
+                blankRow = nr;
+                blankCol = nc;
+                lastDir = dir ^ 1; // 记录反向方向
             }
         }
     }
@@ -101,7 +103,7 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
 
 
         if(gameIsOver()){
-            JLabel jLabel = new JLabel(new ImageIcon("puzzlegame/image/win.png"));
+            JLabel jLabel = new JLabel(res("image/win.png"));
             jLabel.setBounds(203, 283, 197, 73);
             this.getContentPane().add(jLabel);
         }
@@ -127,7 +129,7 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
 
 
                 //创建一个Jlable对象
-                JLabel jLable = new JLabel(new ImageIcon("puzzlegame\\image\\" + picture +"\\" + picture + pictureIndex + "\\" + array[i][j] + ".jpg"));
+                JLabel jLable = new JLabel(res("image/" + picture + "/" + picture + pictureIndex + "/" + array[i][j] + ".jpg"));
 
                 //设置图片位置大小
                 jLable.setBounds(105 * j + 83, 105 * i + 134, 105, 105);
@@ -143,7 +145,7 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
 
 
         //创建一个Jlable对象
-        JLabel jLable = new JLabel(new ImageIcon("puzzlegame\\image\\background.png"));
+        JLabel jLable = new JLabel(res("image/background.png"));
 
         //设置图片位置大小
         jLable.setBounds(39, 40, 508, 560);
@@ -222,11 +224,10 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
 
         //取消默认的图片居中方式
         this.setLayout(null);
+    }
 
-        pictureList.add("girl");
-        pictureList.add("animal");
-        pictureList.add("sport");
-
+    private ImageIcon res(String path) {
+        return new ImageIcon(getClass().getResource("/" + path));
     }
 
     private int getIndex() {
@@ -270,12 +271,12 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
         } else if (code == 32){
 //            System.out.println("yes");
             this.getContentPane().removeAll();
-            JLabel jLabel = new JLabel(new ImageIcon("puzzlegame\\image\\" + picture + "\\" + picture + pictureIndex + "\\all.jpg"));
+            JLabel jLabel = new JLabel(res("image/" + picture + "/" + picture + pictureIndex + "/all.jpg"));
             jLabel.setBounds(83, 134, 420, 420);
             this.getContentPane().add(jLabel);
 
             //创建一个Jlable对象
-            JLabel jLable = new JLabel(new ImageIcon("puzzlegame\\image\\background.png"));
+            JLabel jLable = new JLabel(res("image/background.png"));
 
             //设置图片位置大小
             jLable.setBounds(39, 40, 508, 560);
@@ -381,7 +382,7 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
             System.exit(0);
         }else if (object == accountItem){
             JDialog jDialog = new JDialog();
-            JLabel jLabel = new JLabel(new ImageIcon("puzzlegame\\image\\aboutMe.jpg"));
+            JLabel jLabel = new JLabel(res("image/aboutMe.jpg"));
             jLabel.setBounds(0,0,372,636);
             jDialog.getContentPane().add(jLabel);
             jDialog.setSize(372,636);
