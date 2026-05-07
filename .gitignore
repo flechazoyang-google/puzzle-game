@@ -1,0 +1,19 @@
+# Compiled class files
+*.class
+
+# Package files
+*.jar
+*.zip
+
+# Build output
+out/
+
+# IDE files
+*.iml
+.idea/
+
+# Claude Code
+.claude/
+
+# Project specific
+PuzzleGame/
